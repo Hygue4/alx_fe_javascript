@@ -18,63 +18,51 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   },
 ];
 
-// Save last viewed quote to session storage
+// === STEP 1: WEB STORAGE INTEGRATION ===
+
+// Save quotes to local storage
+function saveQuotesToLocalStorage() {
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+}
+
+// Using Session Storage (Optional) - Store last viewed quote
 function saveLastViewedQuote(quote) {
   sessionStorage.setItem('lastViewedQuote', JSON.stringify(quote));
 }
 
-// Load last viewed quote from session storage
 function loadLastViewedQuote() {
   const lastQuote = sessionStorage.getItem('lastViewedQuote');
   return lastQuote ? JSON.parse(lastQuote) : null;
 }
 
-// Function to save quotes to local storage
-function saveQuotesToLocalStorage() {
-  localStorage.setItem('quotes', JSON.stringify(quotes));
-}
-
-// Function to display a random quote using appendChild
+// Function to display a random quote
 function showRandomQuote() {
   const quoteDisplay = document.getElementById('quoteDisplay');
 
   // Clear previous content
-  while (quoteDisplay.firstChild) {
-    quoteDisplay.removeChild(quoteDisplay.firstChild);
-  }
+  quoteDisplay.innerHTML = '';
 
   if (quotes.length === 0) {
-    const noQuoteMessage = document.createElement('p');
-    noQuoteMessage.textContent = 'No quotes available. Please add some quotes.';
-    quoteDisplay.appendChild(noQuoteMessage);
+    quoteDisplay.innerHTML =
+      '<p>No quotes available. Please add some quotes.</p>';
     return;
   }
 
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
 
-  // Save to session storage
+  // Save last viewed quote to session storage
   saveLastViewedQuote(randomQuote);
 
-  // Create quote container
-  const quoteContainer = document.createElement('div');
-  quoteContainer.className = 'quote';
-
-  // Create quote text element
-  const quoteText = document.createElement('p');
-  quoteText.textContent = `"${randomQuote.text}"`;
-
-  // Create category element
-  const quoteCategory = document.createElement('small');
-  quoteCategory.textContent = `Category: ${randomQuote.category}`;
-
-  // Append elements using appendChild
-  quoteContainer.appendChild(quoteText);
-  quoteContainer.appendChild(quoteCategory);
-  quoteDisplay.appendChild(quoteContainer);
+  quoteDisplay.innerHTML = `
+        <div class="quote">
+            <p>"${randomQuote.text}"</p>
+            <small>Category: ${randomQuote.category}</small>
+        </div>
+    `;
 }
 
-// Function to add new quotes to array and update DOM
+// Function to add new quotes
 function addQuote() {
   const quoteText = document.getElementById('newQuoteText').value;
   const quoteCategory = document.getElementById('newQuoteCategory').value;
@@ -85,106 +73,53 @@ function addQuote() {
   }
 
   // Add new quote to the array
-  const newQuote = {
+  quotes.push({
     text: quoteText,
     category: quoteCategory,
-  };
-  quotes.push(newQuote);
+  });
 
-  // Save to local storage
+  // Save to local storage (REQUIRED)
   saveQuotesToLocalStorage();
 
   // Clear input fields
   document.getElementById('newQuoteText').value = '';
   document.getElementById('newQuoteCategory').value = '';
 
-  // Show confirmation using DOM manipulation
-  const quoteDisplay = document.getElementById('quoteDisplay');
-
-  // Clear previous content
-  while (quoteDisplay.firstChild) {
-    quoteDisplay.removeChild(quoteDisplay.firstChild);
-  }
-
-  // Create confirmation message using appendChild
-  const confirmationMessage = document.createElement('div');
-  confirmationMessage.className = 'confirmation';
-
-  const messageText = document.createElement('p');
-  messageText.textContent = 'Quote added successfully!';
-  messageText.style.color = 'green';
-
-  const newQuoteDisplay = document.createElement('div');
-  newQuoteDisplay.className = 'quote';
-
-  const addedQuoteText = document.createElement('p');
-  addedQuoteText.textContent = `"${newQuote.text}"`;
-
-  const addedQuoteCategory = document.createElement('small');
-  addedQuoteCategory.textContent = `Category: ${newQuote.category}`;
-
-  // Append using appendChild
-  newQuoteDisplay.appendChild(addedQuoteText);
-  newQuoteDisplay.appendChild(addedQuoteCategory);
-  confirmationMessage.appendChild(messageText);
-  confirmationMessage.appendChild(newQuoteDisplay);
-  quoteDisplay.appendChild(confirmationMessage);
+  alert('Quote added successfully!');
 }
 
-// Export quotes to JSON file
+// === STEP 2: JSON DATA IMPORT AND EXPORT ===
+
+// Implement JSON Export - Using Blob and URL.createObjectURL
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
 
+  // Create download link
   const link = document.createElement('a');
   link.href = URL.createObjectURL(dataBlob);
   link.download = 'quotes.json';
-  document.body.appendChild(link); // Using appendChild
+  document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link); // Clean up
+  document.body.removeChild(link);
 
   URL.revokeObjectURL(link.href);
-
-  // Show export confirmation
-  const quoteDisplay = document.getElementById('quoteDisplay');
-  const exportMessage = document.createElement('p');
-  exportMessage.textContent = 'Quotes exported successfully!';
-  exportMessage.style.color = 'blue';
-
-  // Clear and show message
-  while (quoteDisplay.firstChild) {
-    quoteDisplay.removeChild(quoteDisplay.firstChild);
-  }
-  quoteDisplay.appendChild(exportMessage);
+  alert('Quotes exported successfully!');
 }
 
-// Import quotes from JSON file
-function importFromJsonFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
+// Implement JSON Import - Using FileReader as specified
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function (event) {
     try {
-      const importedQuotes = JSON.parse(e.target.result);
+      const importedQuotes = JSON.parse(event.target.result);
 
+      // Validate imported data
       if (Array.isArray(importedQuotes)) {
-        quotes = importedQuotes;
+        quotes.push(...importedQuotes);
         saveQuotesToLocalStorage();
-
-        // Show import confirmation
-        const quoteDisplay = document.getElementById('quoteDisplay');
-        const importMessage = document.createElement('p');
-        importMessage.textContent = 'Quotes imported successfully!';
-        importMessage.style.color = 'green';
-
-        // Clear and show message
-        while (quoteDisplay.firstChild) {
-          quoteDisplay.removeChild(quoteDisplay.firstChild);
-        }
-        quoteDisplay.appendChild(importMessage);
-
-        setTimeout(showRandomQuote, 2000); // Refresh display after 2 seconds
+        alert('Quotes imported successfully!');
+        showRandomQuote(); // Refresh display
       } else {
         alert('Invalid JSON format. Please provide a valid quotes array.');
       }
@@ -192,50 +127,26 @@ function importFromJsonFile(input) {
       alert('Error parsing JSON file: ' + error.message);
     }
   };
-  reader.readAsText(file);
-
-  // Reset file input
-  input.value = '';
+  fileReader.readAsText(event.target.files[0]);
 }
 
-// Function to create the add quote form
-function createAddQuoteForm() {
-  // Form is already in HTML structure
-}
-
-// Event listener for the "Show New Quote" button
+// === INITIALIZATION ===
 document.addEventListener('DOMContentLoaded', function () {
   document
     .getElementById('newQuote')
     .addEventListener('click', showRandomQuote);
 
-  // Display last viewed quote or random quote using appendChild
+  // Display last viewed quote from session storage or random quote
   const lastQuote = loadLastViewedQuote();
-  const quoteDisplay = document.getElementById('quoteDisplay');
-
-  // Clear any existing content
-  while (quoteDisplay.firstChild) {
-    quoteDisplay.removeChild(quoteDisplay.firstChild);
-  }
-
   if (lastQuote) {
-    const quoteContainer = document.createElement('div');
-    quoteContainer.className = 'quote';
-
-    const quoteText = document.createElement('p');
-    quoteText.textContent = `"${lastQuote.text}"`;
-
-    const quoteCategory = document.createElement('small');
-    quoteCategory.textContent = `Category: ${lastQuote.category}`;
-
-    const lastViewed = document.createElement('small');
-    lastViewed.innerHTML = '<br><em>(Last viewed)</em>';
-
-    // Append using appendChild
-    quoteContainer.appendChild(quoteText);
-    quoteContainer.appendChild(quoteCategory);
-    quoteContainer.appendChild(lastViewed);
-    quoteDisplay.appendChild(quoteContainer);
+    const quoteDisplay = document.getElementById('quoteDisplay');
+    quoteDisplay.innerHTML = `
+            <div class="quote">
+                <p>"${lastQuote.text}"</p>
+                <small>Category: ${lastQuote.category}</small>
+                <br><small><em>(Last viewed)</em></small>
+            </div>
+        `;
   } else {
     showRandomQuote();
   }
