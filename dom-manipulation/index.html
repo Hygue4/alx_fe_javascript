@@ -4,11 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dynamic Quote Generator</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay"></div>
+
+    <!-- Quote Display Area -->
+    <div id="quoteDisplay">
+      <p>Click the button to generate a quote!</p>
+    </div>
+
+    <!-- Button to show new random quote -->
     <button id="newQuote">Show New Quote</button>
+
+    <!-- Add Quote Form -->
+    <div>
+      <h2>Add New Quote</h2>
+      <input type="text" id="newQuoteText" placeholder="Enter quote text" />
+      <input type="text" id="newQuoteCategory" placeholder="Enter category" />
+      <button onclick="addQuote()">Add Quote</button>
+    </div>
+
+    <!-- Export Quotes Button (THIS IS WHAT'S MISSING) -->
+    <button onclick="exportToJsonFile()">Export Quotes</button>
+
+    <!-- Import Quotes Input -->
+    <div>
+      <h2>Import Quotes</h2>
+      <input
+        type="file"
+        id="importFile"
+        accept=".json"
+        onchange="importFromJsonFile(event)"
+      />
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
