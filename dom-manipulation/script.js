@@ -16,6 +16,13 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     text: 'The future belongs to those who believe in the beauty of their dreams.',
     category: 'Dreams',
   },
+  {
+    text: 'Do not watch the clock. Do what it does. Keep going.',
+    category: 'Time',
+  },
+  {
+    text: 'Success is not final, failure is not fatal: It is the courage to continue that counts.',
+  },
 ];
 
 // Server URL for syncing (using JSONPlaceholder as mock API)
@@ -105,7 +112,7 @@ async function syncQuotes() {
         saveQuotesToLocalStorage();
         populateCategories();
         filterQuotes();
-        showNotification('Data synced successfully!', 'success');
+        showNotification('Quotes synced with server!', 'success');
       }
     }
 
