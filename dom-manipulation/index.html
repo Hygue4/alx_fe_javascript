@@ -92,10 +92,148 @@
         border-radius: 5px;
         margin-bottom: 20px;
       }
+
+      /* Notification System Styles */
+      #syncNotification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #2196f3;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      #syncNotification.show {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      #syncNotification.success {
+        background-color: #4caf50;
+      }
+
+      #syncNotification.error {
+        background-color: #f44336;
+      }
+
+      #syncNotification.warning {
+        background-color: #ff9800;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .sync-controls {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      .sync-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+
+      .sync-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin-right: 5px;
+      }
+
+      .sync-indicator.active {
+        background-color: #4caf50;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      #conflictResolution {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      #conflictResolution.show {
+        display: block;
+      }
+
+      .conflict-option {
+        background: white;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 3px;
+        border: 1px solid #ddd;
+      }
     </style>
   </head>
   <body>
     <h1>Dynamic Quote Generator</h1>
+
+    <!-- Sync Notification -->
+    <div id="syncNotification"></div>
+
+    <!-- Sync Controls Section -->
+    <div class="sync-controls">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <strong>Server Sync</strong>
+          <div class="sync-status">
+            <span
+              ><span class="sync-indicator" id="syncIndicator"></span
+              ><span id="syncStatus">Ready</span></span
+            >
+          </div>
+        </div>
+        <div>
+          <button onclick="syncQuotes()" style="background-color: #2196f3">
+            Sync Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conflict Resolution Section -->
+    <div id="conflictResolution">
+      <h3>⚠️ Data Conflict Detected</h3>
+      <p id="conflictMessage"></p>
+      <div id="conflictOptions"></div>
+    </div>
 
     <!-- Category Filter Section -->
     <div class="filter-section">
